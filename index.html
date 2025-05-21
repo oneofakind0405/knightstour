@@ -168,12 +168,57 @@
             opacity: 0.1;
             z-index: -1;
         }
+
+        .instructions {
+            background-color: #000;
+            border: 3px solid #fff;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 600px;
+            text-align: left;
+            font-size: 10px;
+            line-height: 1.6;
+            image-rendering: pixelated;
+        }
+
+        .instructions h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .instructions p {
+            margin: 10px 0;
+        }
+
+        .instructions .key-point {
+            color: #000;
+            background: #fff;
+            padding: 2px 5px;
+            margin: 2px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <div class="dot-pattern"></div>
     <div class="pixel-art">♞</div>
     <h1>KNIGHT'S TOUR</h1>
+    
+    <div class="instructions">
+        <h2>HOW TO PLAY</h2>
+        <p>MISSION: VISIT ALL SQUARES EXACTLY ONCE WITH THE KNIGHT</p>
+        <p>1. SELECT BOARD SIZE (5X5 TO 8X8)</p>
+        <p>2. CLICK ANY SQUARE TO START</p>
+        <p>3. MOVE LIKE A CHESS KNIGHT:</p>
+        <p>   - TWO SQUARES HORIZONTALLY + ONE SQUARE VERTICALLY</p>
+        <p>   - OR TWO SQUARES VERTICALLY + ONE SQUARE HORIZONTALLY</p>
+        <p>4. <span class="key-point">WHITE SQUARES</span> = VISITED</p>
+        <p>5. <span class="key-point">BLINKING SQUARE</span> = CURRENT POSITION</p>
+        <p>6. PRESS <span class="key-point">SOLVE</span> FOR AUTO-SOLUTION</p>
+    </div>
+
     <div class="controls">
         <select id="boardSize">
             <option value="5">5 x 5</option>
