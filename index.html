@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기사의 여행 (Knight's Tour)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #000;
+            padding: 20px;
+            color: #fff;
+            image-rendering: pixelated;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.5;
+            text-shadow: 2px 2px 0px #000, 
+                         4px 4px 0px #fff;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            background-color: #000;
+            padding: 15px;
+            border: 4px solid #fff;
+            image-rendering: pixelated;
+        }
+
+        .board {
+            display: grid;
+            gap: 4px;
+            background-color: #fff;
+            padding: 4px;
+            image-rendering: pixelated;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            border: 2px solid #fff;
+            color: #fff;
+            position: relative;
+            image-rendering: pixelated;
+        }
+
+        .cell.visited {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .cell.current {
+            background-color: #fff;
+            color: #000;
+            animation: blink 1s infinite;
+        }
+
+        .cell.current::before {
+            content: "♞";
+            position: absolute;
+            font-size: 30px;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .cell:hover:not(.visited):not(.current) {
+            background-color: #333;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 12px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #000;
+            color: #fff;
+            border: 3px solid #fff;
+            font-family: 'Press Start 2P', cursive;
+            image-rendering: pixelated;
+        }
+
+        button:hover {
+            background-color: #fff;
+            color: #000;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        select {
+            padding: 10px;
+            font-size: 12px;
+            margin: 5px;
+            background-color: #000;
+            color: #fff;
+            border: 3px solid #fff;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+            image-rendering: pixelated;
+        }
+
+        select:focus {
+            outline: none;
+            background-color: #fff;
+            color: #000;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #fff;
+            padding: 15px;
+            border: 3px solid #fff;
+            text-align: center;
+            animation: appear 0.3s;
+            image-rendering: pixelated;
+        }
+
+        @keyframes appear {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .pixel-art {
+            font-size: 40px;
+            margin: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 0px #000;
+            animation: moveUpDown 2s infinite steps(2);
+            image-rendering: pixelated;
+        }
+
+        @keyframes moveUpDown {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* 도트 효과를 위한 배경 패턴 */
+        .dot-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#fff 1px, transparent 1px);
+            background-size: 4px 4px;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="dot-pattern"></div>
+    <div class="pixel-art">♞</div>
+    <h1>KNIGHT'S TOUR</h1>
+    <div class="controls">
+        <select id="boardSize">
+            <option value="5">5 x 5</option>
+            <option value="6">6 x 6</option>
+            <option value="7">7 x 7</option>
+            <option value="8">8 x 8</option>
+        </select>
+        <button id="newGame">NEW GAME</button>
+        <button id="solve">SOLVE</button>
+    </div>
+    <div id="board" class="board"></div>
+    <div id="message" style="display: none;"></div>
+
+    <script>
+        class KnightsTour {
+            constructor(size) {
+                this.size = size;
+                this.board = Array(size).fill().map(() => Array(size).fill(0));
+                this.moves = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+                this.currentMove = 1;
+                this.currentPos = null;
+            }
+
+            isValidMove(x, y) {
+                return x >= 0 && x < this.size && y >= 0 && y < this.size && this.board[x][y] === 0;
+            }
+
+            getPossibleMoves(x, y) {
+                return this.moves
+                    .map(([dx, dy]) => [x + dx, y + dy])
+                    .filter(([newX, newY]) => this.isValidMove(newX, newY));
+            }
+
+            makeMove(x, y) {
+                if (this.currentPos === null) {
+                    this.currentPos = [x, y];
+                    this.board[x][y] = this.currentMove++;
+                    return true;
+                }
+
+                const [currentX, currentY] = this.currentPos;
+                const possibleMoves = this.getPossibleMoves(currentX, currentY);
+                
+                if (possibleMoves.some(([moveX, moveY]) => moveX === x && moveY === y)) {
+                    this.board[x][y] = this.currentMove++;
+                    this.currentPos = [x, y];
+                    return true;
+                }
+
+                return false;
+            }
+
+            solve(startX = 0, startY = 0) {
+                this.board = Array(this.size).fill().map(() => Array(this.size).fill(0));
+                return this.solveUtil(startX, startY, 1);
+            }
+
+            solveUtil(x, y, moveCount) {
+                this.board[x][y] = moveCount;
+
+                if (moveCount === this.size * this.size) {
+                    return true;
+                }
+
+                const possibleMoves = this.getPossibleMoves(x, y);
+                possibleMoves.sort((a, b) => {
+                    const movesFromA = this.getPossibleMoves(a[0], a[1]).length;
+                    const movesFromB = this.getPossibleMoves(b[0], b[1]).length;
+                    return movesFromA - movesFromB;
+                });
+
+                for (const [nextX, nextY] of possibleMoves) {
+                    if (this.solveUtil(nextX, nextY, moveCount + 1)) {
+                        return true;
+                    }
+                }
+
+                this.board[x][y] = 0;
+                return false;
+            }
+        }
+
+        class GameUI {
+            constructor() {
+                this.boardElement = document.getElementById('board');
+                this.messageElement = document.getElementById('message');
+                this.boardSizeSelect = document.getElementById('boardSize');
+                this.newGameButton = document.getElementById('newGame');
+                this.solveButton = document.getElementById('solve');
+                
+                this.game = new KnightsTour(parseInt(this.boardSizeSelect.value));
+                
+                this.initializeEventListeners();
+                this.createBoard();
+            }
+
+            initializeEventListeners() {
+                this.newGameButton.addEventListener('click', () => this.newGame());
+                this.solveButton.addEventListener('click', () => this.solve());
+                this.boardSizeSelect.addEventListener('change', () => this.newGame());
+            }
+
+            createBoard() {
+                this.boardElement.style.gridTemplateColumns = `repeat(${this.game.size}, 60px)`;
+                this.boardElement.innerHTML = '';
+
+                for (let i = 0; i < this.game.size; i++) {
+                    for (let j = 0; j < this.game.size; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.x = i;
+                        cell.dataset.y = j;
+                        cell.addEventListener('click', () => this.handleCellClick(i, j));
+                        this.boardElement.appendChild(cell);
+                    }
+                }
+            }
+
+            updateBoard() {
+                const cells = this.boardElement.getElementsByClassName('cell');
+                for (let i = 0; i < cells.length; i++) {
+                    const x = parseInt(cells[i].dataset.x);
+                    const y = parseInt(cells[i].dataset.y);
+                    cells[i].textContent = this.game.board[x][y] || '';
+                    cells[i].className = 'cell';
+                    
+                    if (this.game.board[x][y] > 0) {
+                        cells[i].classList.add('visited');
+                    }
+                    
+                    if (this.game.currentPos && x === this.game.currentPos[0] && y === this.game.currentPos[1]) {
+                        cells[i].classList.add('current');
+                    }
+                }
+            }
+
+            handleCellClick(x, y) {
+                if (this.game.makeMove(x, y)) {
+                    this.updateBoard();
+                    
+                    if (this.game.currentMove > this.game.size * this.game.size) {
+                        this.messageElement.style.display = 'block';
+                        this.messageElement.textContent = 'COMPLETE!';
+                    }
+                }
+            }
+
+            newGame() {
+                const size = parseInt(this.boardSizeSelect.value);
+                this.game = new KnightsTour(size);
+                this.createBoard();
+                this.updateBoard();
+                this.messageElement.style.display = 'none';
+            }
+
+            solve() {
+                if (this.game.solve()) {
+                    this.updateBoard();
+                    this.messageElement.style.display = 'block';
+                    this.messageElement.textContent = 'SOLVED!';
+                } else {
+                    this.messageElement.style.display = 'block';
+                    this.messageElement.textContent = 'NO SOLUTION';
+                }
+            }
+        }
+
+        // 게임 시작
+        new GameUI();
+    </script>
+</body>
+</html>
