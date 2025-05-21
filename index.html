@@ -199,6 +199,28 @@
             margin: 2px;
             display: inline-block;
         }
+
+        .lang-toggle {
+            background-color: #000;
+            color: #fff;
+            border: 3px solid #fff;
+            padding: 8px 16px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            margin: 10px 0;
+            image-rendering: pixelated;
+        }
+
+        .lang-toggle:hover {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .lang-toggle.active {
+            background-color: #fff;
+            color: #000;
+        }
     </style>
 </head>
 <body>
@@ -206,17 +228,19 @@
     <div class="pixel-art">♞</div>
     <h1>KNIGHT'S TOUR</h1>
     
+    <button class="lang-toggle" id="langToggle">EN/KO</button>
+    
     <div class="instructions">
-        <h2>HOW TO PLAY</h2>
-        <p>MISSION: VISIT ALL SQUARES EXACTLY ONCE WITH THE KNIGHT</p>
-        <p>1. SELECT BOARD SIZE (5X5 TO 8X8)</p>
-        <p>2. CLICK ANY SQUARE TO START</p>
-        <p>3. MOVE LIKE A CHESS KNIGHT:</p>
-        <p>   - TWO SQUARES HORIZONTALLY + ONE SQUARE VERTICALLY</p>
-        <p>   - OR TWO SQUARES VERTICALLY + ONE SQUARE HORIZONTALLY</p>
-        <p>4. <span class="key-point">WHITE SQUARES</span> = VISITED</p>
-        <p>5. <span class="key-point">BLINKING SQUARE</span> = CURRENT POSITION</p>
-        <p>6. PRESS <span class="key-point">SOLVE</span> FOR AUTO-SOLUTION</p>
+        <h2 id="howToPlay">HOW TO PLAY</h2>
+        <p id="mission">MISSION: VISIT ALL SQUARES EXACTLY ONCE WITH THE KNIGHT</p>
+        <p id="step1">1. SELECT BOARD SIZE (5X5 TO 8X8)</p>
+        <p id="step2">2. CLICK ANY SQUARE TO START</p>
+        <p id="step3">3. MOVE LIKE A CHESS KNIGHT:</p>
+        <p id="step3a">   - TWO SQUARES HORIZONTALLY + ONE SQUARE VERTICALLY</p>
+        <p id="step3b">   - OR TWO SQUARES VERTICALLY + ONE SQUARE HORIZONTALLY</p>
+        <p id="step4">4. <span class="key-point">WHITE SQUARES</span> = VISITED</p>
+        <p id="step5">5. <span class="key-point">BLINKING SQUARE</span> = CURRENT POSITION</p>
+        <p id="step6">6. PRESS <span class="key-point">SOLVE</span> FOR AUTO-SOLUTION</p>
     </div>
 
     <div class="controls">
@@ -301,6 +325,77 @@
             }
         }
 
+        // 언어 전환 기능 추가
+        const translations = {
+            en: {
+                howToPlay: "HOW TO PLAY",
+                mission: "MISSION: VISIT ALL SQUARES EXACTLY ONCE WITH THE KNIGHT",
+                step1: "1. SELECT BOARD SIZE (5X5 TO 8X8)",
+                step2: "2. CLICK ANY SQUARE TO START",
+                step3: "3. MOVE LIKE A CHESS KNIGHT:",
+                step3a: "   - TWO SQUARES HORIZONTALLY + ONE SQUARE VERTICALLY",
+                step3b: "   - OR TWO SQUARES VERTICALLY + ONE SQUARE HORIZONTALLY",
+                step4: "4. <span class=\"key-point\">WHITE SQUARES</span> = VISITED",
+                step5: "5. <span class=\"key-point\">BLINKING SQUARE</span> = CURRENT POSITION",
+                step6: "6. PRESS <span class=\"key-point\">SOLVE</span> FOR AUTO-SOLUTION",
+                newGame: "NEW GAME",
+                solve: "SOLVE",
+                complete: "COMPLETE!",
+                solved: "SOLVED!",
+                noSolution: "NO SOLUTION"
+            },
+            ko: {
+                howToPlay: "게임 방법",
+                mission: "목표: 나이트로 모든 칸을 정확히 한 번씩 방문하세요",
+                step1: "1. 보드 크기 선택 (5X5 ~ 8X8)",
+                step2: "2. 아무 칸이나 클릭하여 시작",
+                step3: "3. 체스 나이트처럼 이동:",
+                step3a: "   - 가로로 2칸 + 세로로 1칸",
+                step3b: "   - 또는 세로로 2칸 + 가로로 1칸",
+                step4: "4. <span class=\"key-point\">흰색 칸</span> = 방문함",
+                step5: "5. <span class=\"key-point\">깜빡이는 칸</span> = 현재 위치",
+                step6: "6. <span class=\"key-point\">SOLVE</span> 버튼으로 자동 풀이",
+                newGame: "새 게임",
+                solve: "풀이",
+                complete: "성공!",
+                solved: "풀이 완료!",
+                noSolution: "해결책 없음"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function updateLanguage(lang) {
+            currentLang = lang;
+            const texts = translations[lang];
+            
+            // 설명 텍스트 업데이트
+            document.getElementById('howToPlay').textContent = texts.howToPlay;
+            document.getElementById('mission').textContent = texts.mission;
+            document.getElementById('step1').textContent = texts.step1;
+            document.getElementById('step2').textContent = texts.step2;
+            document.getElementById('step3').textContent = texts.step3;
+            document.getElementById('step3a').textContent = texts.step3a;
+            document.getElementById('step3b').textContent = texts.step3b;
+            document.getElementById('step4').innerHTML = texts.step4;
+            document.getElementById('step5').innerHTML = texts.step5;
+            document.getElementById('step6').innerHTML = texts.step6;
+
+            // 버튼 텍스트 업데이트
+            document.getElementById('newGame').textContent = texts.newGame;
+            document.getElementById('solve').textContent = texts.solve;
+
+            // 언어 토글 버튼 스타일 업데이트
+            const langToggle = document.getElementById('langToggle');
+            langToggle.classList.toggle('active', lang === 'ko');
+        }
+
+        // 언어 전환 버튼 이벤트 리스너
+        document.getElementById('langToggle').addEventListener('click', () => {
+            const newLang = currentLang === 'en' ? 'ko' : 'en';
+            updateLanguage(newLang);
+        });
+
         class GameUI {
             constructor() {
                 this.boardElement = document.getElementById('board');
@@ -361,7 +456,7 @@
                     
                     if (this.game.currentMove > this.game.size * this.game.size) {
                         this.messageElement.style.display = 'block';
-                        this.messageElement.textContent = 'COMPLETE!';
+                        this.messageElement.textContent = translations[currentLang].complete;
                     }
                 }
             }
@@ -378,10 +473,10 @@
                 if (this.game.solve()) {
                     this.updateBoard();
                     this.messageElement.style.display = 'block';
-                    this.messageElement.textContent = 'SOLVED!';
+                    this.messageElement.textContent = translations[currentLang].solved;
                 } else {
                     this.messageElement.style.display = 'block';
-                    this.messageElement.textContent = 'NO SOLUTION';
+                    this.messageElement.textContent = translations[currentLang].noSolution;
                 }
             }
         }
